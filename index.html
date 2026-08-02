@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitsune — all-in-one Discord server management</title>
+<meta name="description" content="Ticket system, moderation, logging, levels and more — all configured from a single dashboard inside Discord.">
+
+<meta property="og:title" content="Kitsune — all-in-one Discord bot">
+<meta property="og:description" content="Tickets, moderation, logging, levels. Everything from one dashboard, no commands to memorize.">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="logo.jpg">
+
+<style>
+  :root{
+    /* Palette presa dal logo: corallo delle orecchie e del muso, ambra delle
+       foglie, panna della pelliccia. I fondi sono neri "caldi" (virati al
+       bruno) invece che grigi freddi: un grigio neutro accanto all'arancione
+       lo fa sembrare sporco. */
+    --brand:#F2794F;        /* corallo */
+    --brand-soft:#FF9E7A;
+    --brand-deep:#D65F38;
+    --amber:#F5B041;        /* foglie */
+    --bg:#14100E;
+    --bg-2:#1C1613;
+    --card:#221A16;
+    --line:#3A2B23;
+    --text:#F6EBE3;         /* panna */
+    --muted:#B39C90;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{width:min(1080px,92vw);margin:0 auto}
+  a{color:var(--brand-soft);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ── HERO ─────────────────────────────────────────────── */
+  header{
+    position:relative;
+    padding:96px 0 80px;
+    text-align:center;
+    background:
+      radial-gradient(700px 340px at 22% -8%, rgba(245,176,65,.20), transparent 70%),
+      radial-gradient(900px 420px at 68% -12%, rgba(242,121,79,.30), transparent 72%),
+      linear-gradient(180deg,var(--bg-2),var(--bg));
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    width:104px;height:104px;border-radius:28px;
+    object-fit:cover;
+    border:2px solid rgba(242,121,79,.35);
+    box-shadow:0 0 0 6px rgba(242,121,79,.07), 0 16px 44px rgba(0,0,0,.55);
+    background:var(--card);
+  }
+  h1{
+    font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:-.02em;margin:22px 0 10px;
+    background:linear-gradient(100deg,var(--text) 20%,var(--brand-soft) 55%,var(--amber) 90%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:var(--text);
+  }
+  .tag{color:var(--muted);font-size:clamp(1rem,2.4vw,1.2rem);max-width:640px;margin:0 auto}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .btn{
+    display:inline-block;padding:14px 30px;border-radius:12px;
+    font-weight:600;font-size:1.02rem;transition:transform .12s ease,background .18s ease;
+  }
+  .btn:hover{text-decoration:none;transform:translateY(-2px)}
+  /* Testo scuro sull'arancione: il bianco su questo corallo ha un contrasto
+     troppo basso e si legge male. */
+  .btn-primary{background:var(--brand);color:#1A100C;box-shadow:0 8px 26px rgba(242,121,79,.28)}
+  .btn-primary:hover{background:var(--brand-soft)}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn-ghost:hover{background:var(--card)}
+
+  /* ── SECTIONS ─────────────────────────────────────────── */
+  section{padding:84px 0}
+  h2{font-size:clamp(1.6rem,3.6vw,2.1rem);letter-spacing:-.01em;margin-bottom:10px;text-align:center}
+  .sub{color:var(--muted);text-align:center;margin-bottom:48px}
+
+  .grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(268px,1fr))}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:26px 24px;transition:border-color .18s ease,transform .18s ease;
+  }
+  .card:hover{
+    border-color:rgba(242,121,79,.55);transform:translateY(-3px);
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .card .ico{font-size:1.7rem;display:block;margin-bottom:12px}
+  .card h3{font-size:1.08rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.95rem}
+
+  /* ── SHOTS ────────────────────────────────────────────── */
+  /* Colonne CSS invece di grid: gli screenshot hanno proporzioni molto
+     diverse (il pannello ticket è alto il doppio degli altri) e con grid le
+     righe hanno altezza uniforme, lasciando buchi sotto le immagini basse.
+     Con le colonne le card si incastrano e ognuna tiene la sua altezza.
+     `2 400px` = massimo 2 colonne, e a schermo stretto scende a una sola. */
+  .shots{columns:2 400px;column-gap:26px}
+  figure{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;
+    break-inside:avoid;               /* non spezzare una card tra due colonne */
+    margin:0 0 26px;
+  }
+  figure img{display:block;width:100%;height:auto}
+  figcaption{padding:14px 18px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line)}
+  /* segnaposto finché l'immagine non c'è */
+  .ph{
+    aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;
+    color:#6B564B;font-size:.9rem;background:
+      repeating-linear-gradient(45deg,#1B1512,#1B1512 12px,#211A15 12px,#211A15 24px);
+  }
+
+  /* ── STEPS ────────────────────────────────────────────── */
+  .steps{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));counter-reset:s}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 24px;position:relative}
+  .step::before{
+    counter-increment:s;content:counter(s);
+    display:flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--brand),var(--amber));
+    color:#1A100C;font-weight:700;margin-bottom:14px;
+  }
+  .step h3{font-size:1.04rem;margin-bottom:6px}
+  .step p{color:var(--muted);font-size:.94rem}
+
+  .final{text-align:center;background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+  footer{padding:44px 0;text-align:center;color:var(--muted);font-size:.9rem}
+  footer nav{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+
+  @media (max-width:600px){
+    header{padding:70px 0 60px}
+    section{padding:62px 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <img class="logo" src="logo.jpg" alt="Kitsune"
+         onerror="this.style.display='none'">
+    <h1>Kitsune</h1>
+    <p class="tag">
+      A cute, aesthetic all-in-one bot for Discord servers — tickets, moderation,
+      logging and levels, all configured from a single dashboard.
+      <strong>No commands to memorize.</strong>
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary"
+         href="https://discord.com/oauth2/authorize?client_id=1512549194559258729&amp;permissions=1375195229430&amp;scope=bot+applications.commands">
+        Add to Discord
+      </a>
+      <a class="btn btn-ghost" href="https://discord.gg/gndDzYbYv3">Support server</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Everything your server needs</h2>
+    <p class="sub">One bot instead of five, and one place to set it all up.</p>
+
+    <div class="grid">
+      <div class="card">
+        <span class="ico">🎫</span>
+        <h3>Ticket system</h3>
+        <p>Multiple panels with their own categories, HTML transcripts, claim system
+           with four permission modes, per-user limits, opening hours and auto-close.</p>
+      </div>
+      <div class="card">
+        <span class="ico">🛡️</span>
+        <h3>Moderation &amp; automod</h3>
+        <p>Ban, tempban, kick, timeout and warns with automatic actions. Anti-spam,
+           anti-scam, jail and channel lock — with per-role command permissions.</p>
+      </div>
+      <div class="card">
+        <span class="ico">📋</span>
+        <h3>Detailed logging</h3>
+        <p>Every server event, split into categories, each with its own channel.
+           Channel blacklist with a private log for what shouldn't be public.</p>
+      </div>
+      <div class="card">
+        <span class="ico">⭐</span>
+        <h3>Levels &amp; rewards</h3>
+        <p>XP from chat and voice, role rewards, multipliers, blacklists and a
+           leaderboard. Fully customizable level-up messages.</p>
+      </div>
+      <div class="card">
+        <span class="ico">👋</span>
+        <h3>Greetings &amp; messages</h3>
+        <p>Welcome, leave and boost messages, scheduled auto-messages, and
+           auto-reactions triggered by keywords or mentions.</p>
+      </div>
+      <div class="card">
+        <span class="ico">✨</span>
+        <h3>And more</h3>
+        <p>Polls with automatic numbering, counting game with records, anonymous
+           confessions, partnership manager, embed builder with self-roles.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <h2>See it in action</h2>
+    <p class="sub">Configured entirely from inside Discord.</p>
+
+    <div class="shots">
+      <figure>
+        <img src="img/dashboard.png" alt="The configuration dashboard"
+             onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;dashboard.png&lt;/div&gt;'">
+        <figcaption>One dashboard for every feature — no commands to memorize.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/moderation.png" alt="A moderation embed"
+             onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;moderation.png&lt;/div&gt;'">
+        <figcaption>Clean moderation embeds, with reason, moderator and proof.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/levels.png" alt="The level leaderboard"
+             onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;levels.png&lt;/div&gt;'">
+        <figcaption>XP from chat and voice, with a server leaderboard.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/tickets.png" alt="A ticket panel"
+             onerror="this.outerHTML='&lt;div class=&quot;ph&quot;&gt;tickets.png&lt;/div&gt;'">
+        <figcaption>Ticket panels with your own categories and descriptions.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Up and running in a minute</h2>
+    <p class="sub">Really — there is no step four.</p>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Invite the bot</h3>
+        <p>One click. The permissions requested are only the ones the bot actually
+           uses — no Administrator.</p>
+      </div>
+      <div class="step">
+        <h3>Type <code>/dashboard</code></h3>
+        <p>Every feature is configured from there, with menus and buttons. Changes
+           are saved automatically.</p>
+      </div>
+      <div class="step">
+        <h3>Move the bot's role up</h3>
+        <p>Above the roles it needs to manage, so it can assign them and moderate
+           your members.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Ready when you are</h2>
+    <p class="sub">Free, and configured in minutes.</p>
+    <div class="cta">
+      <a class="btn btn-primary"
+         href="https://discord.com/oauth2/authorize?client_id=1512549194559258729&amp;permissions=1375195229430&amp;scope=bot+applications.commands">
+        Add Kitsune to your server
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="https://discord.gg/gndDzYbYv3">Support</a>
+      <a href="https://github.com/zKyubii/kitsune-docs/blob/main/PRIVACY.md">Privacy Policy</a>
+      <a href="https://github.com/zKyubii/kitsune-docs/blob/main/TERMS.md">Terms of Service</a>
+    </nav>
+    <p>Made by <strong>Kyubi</strong> · Kitsune is not affiliated with Discord Inc.</p>
+  </div>
+</footer>
+
+</body>
+</html>
