@@ -58,4 +58,4 @@ they do. Continuing to use the bot after a change means you accept it.
 ## 7. Contact
 
 Join the [support server](https://discord.gg/gndDzYbYv3), or contact the developer on
-Discord (**Kyubi**).
+Discord (**@notkyubii**).
