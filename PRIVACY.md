@@ -61,4 +61,4 @@ updated when it does.
 ## Contact
 
 Join the [support server](https://discord.gg/gndDzYbYv3), or contact the developer on
-Discord (**Kyubi**).
+Discord (**@notkyubii**).
